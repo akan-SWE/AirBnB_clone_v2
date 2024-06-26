@@ -3,6 +3,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 from models.base_model import BaseModel
+from unittest.mock import MagicMock
 from models import storage
 import os
 
@@ -132,3 +133,15 @@ class test_fileStorage(unittest.TestCase):
         mock_all.reset_mock()
         fs.delete(None)
         mock_all.assert_not_called()
+
+    def test_all_is_called_with_class_name(self):
+        """ Check if the method returns all object of a specific
+        type
+        """
+        # create two object
+        storage.new(BaseModel())
+        storage.new(MagicMock())
+
+        # check if the object returned is of type BaseModel
+        for obj in storage.all(BaseModel).values():
+            self.assertIsInstance(obj, BaseModel)
