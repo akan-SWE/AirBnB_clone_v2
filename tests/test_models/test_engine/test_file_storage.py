@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """ Module for testing file storage"""
 import unittest
+from unittest.mock import patch, MagicMock
 from models.base_model import BaseModel
 from models import storage
 import os
@@ -21,7 +22,7 @@ class test_fileStorage(unittest.TestCase):
         """ Remove storage file at end of tests """
         try:
             os.remove('file.json')
-        except:
+        except FileNotFoundError:
             pass
 
     def test_obj_list_empty(self):
@@ -107,3 +108,27 @@ class test_fileStorage(unittest.TestCase):
         from models.engine.file_storage import FileStorage
         print(type(storage))
         self.assertEqual(type(storage), FileStorage)
+
+    @patch('models.engine.file_storage.FileStorage.all')
+    def test_delete(self, mock_all):
+        """Verify that obj is deleted from __objects"""
+        from models.engine.file_storage import FileStorage
+        fs = FileStorage()
+        # create the mock instance and set it attributes
+        mock_instance = MagicMock()
+        mock_instance.__class__.__name__ = "ExistingClass"
+        mock_instance.id = 1234
+        key = "ExistingClass.1234"
+        # store mock instance in dictionary
+        mock_object = {key: mock_instance}
+        # self.all() will return a dictionary that contains fake object
+        mock_all.return_value = mock_object
+        # act
+        fs.delete(mock_instance)
+        # check if the mock instance is deleted from the dictionary mock_object
+        mock_all.assert_called_once()
+        self.assertNotIn(key, mock_object)
+        # check if it does nothing when obj is None
+        mock_all.reset_mock()
+        fs.delete(None)
+        mock_all.assert_not_called()
