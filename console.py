@@ -113,7 +113,7 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, args):
+    def do_create(self, arg):
         """
         Create an object of any class, optionally with specified attributes.
 
@@ -122,17 +122,17 @@ class HBNBCommand(cmd.Cmd):
         integers and floats to their respective types.
         """
         # error handling
-        class_name_size = args.find(" ")
-        class_name = args[0:class_name_size] if class_name_size != -1 else args
+        class_name_size = arg.find(" ")
+        class_name = arg[0:class_name_size] if class_name_size != -1 else arg
         if not class_name:
             print("** class name missing **")
         elif class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
         # validate parameters
         kwargs = {}
-        for arg in args.split()[1:]:
+        for param in arg.split()[1:]:
             try:
-                key, value = arg.split("=")
+                key, value = param.split("=")
                 if value[0] == '"' and value[-1] == '"':
                     kwargs[key] = value.strip('"').replace("_", " ")
                 elif value.isdigit():  # integers
