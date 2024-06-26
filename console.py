@@ -113,7 +113,7 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, args):
+    def do_create(self, arg):
         """
         Create an object of any class, optionally with specified attributes.
 
@@ -122,30 +122,41 @@ class HBNBCommand(cmd.Cmd):
         integers and floats to their respective types.
         """
         # error handling
-        class_name_size = args.find(" ")
-        class_name = args[0:class_name_size] if class_name_size != -1 else args
+        class_name_size = arg.find(" ")
+        class_name = arg[0:class_name_size] if class_name_size != -1 else arg
+
         if not class_name:
             print("** class name missing **")
         elif class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
-        # validate parameters
-        kwargs = {}
-        for arg in args.split()[1:]:
-            try:
-                key, value = arg.split("=")
-                if value[0] == '"' and value[-1] == '"':
-                    kwargs[key] = value.strip('"').replace("_", " ")
-                elif value.isdigit():  # integers
-                    kwargs[key] = int(value)
-                elif value.replace(".", "", 1).isdigit():  # floats
-                    kwargs[key] = float(value)
-            except ValueError:  # parameter is not <key name>=<value>
-                pass
-        # create instance
-        instance = HBNBCommand.classes.get(class_name)()
-        print(instance.id)
-        instance.__dict__.update(kwargs)
-        storage.save()
+
+        else:  # validate parameters:
+            from re import search
+            from codecs import decode
+            kwargs = {}
+            for param in arg.split()[1:]:
+                try:
+                    key, value = param.split("=")
+                    # validate key
+                    if (not len(key) or not len(value)
+                            or not search('[a-z]|_', key[0])):
+                        break
+                    # validate value
+                    if value[0] == '"' and value[-1] == '"':  # string
+                        value = value.strip('"')
+                        if not search(r'(?<!\\)"', value):
+                            kwargs[key] = value.replace("_", " ")
+                    elif value.isdigit():  # integers
+                        kwargs[key] = int(value)
+                    elif value.replace(".", "", 1).isdigit():  # floats
+                        kwargs[key] = float(value)
+                except ValueError:  # parameter is not <key name>=<value>
+                    pass
+            # create instance
+            instance = HBNBCommand.classes.get(class_name)()
+            print(instance.id)
+            instance.__dict__.update(kwargs)
+            storage.save()
 
     def help_create(self):
         """ Help information for the create method """
