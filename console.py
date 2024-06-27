@@ -129,33 +129,29 @@ class HBNBCommand(cmd.Cmd):
             print("** class name missing **")
         elif class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
-
         else:  # validate parameters:
-            from re import search
-            from codecs import decode
+            from re import match
+            from ast import literal_eval
             kwargs = {}
             for param in arg.split()[1:]:
-                try:
-                    key, value = param.split("=")
-                    # validate key
-                    if (not len(key) or not len(value)
-                            or not search('[a-z]|_', key[0])):
-                        break
-                    # validate value
-                    if value[0] == '"' and value[-1] == '"':  # string
-                        value = value.strip('"')
-                        if not search(r'(?<!\\)"', value):
-                            kwargs[key] = value.replace("_", " ")
-                    elif value.isdigit():  # integers
-                        kwargs[key] = int(value)
-                    elif value.replace(".", "", 1).isdigit():  # floats
-                        kwargs[key] = float(value)
-                except ValueError:  # parameter is not <key name>=<value>
-                    pass
+                # pattern matches <key name>=<value>
+                param_syntax = r'(\w+)=(\".*\"|-?\d+|-?\d+\.\d+)$'
+                valid_syntax = match(param_syntax, param)
+                # Convert value to its type if conversion is valid"
+                if valid_syntax:
+                    key = valid_syntax.group(1)
+                    value = valid_syntax.group(2)
+                    value_as_type = literal_eval(value)
+                    # Replace underscore(_) in string with space
+                    if isinstance(value_as_type, str):
+                        value_as_type = value_as_type.replace("_", " ")
+
+                    kwargs[key] = value_as_type
+
             # create instance
             instance = HBNBCommand.classes.get(class_name)()
             print(instance.id)
-            instance.__dict__.update(kwargs)
+            instance.__dict__.update(kwargs)  # add intance attributes
             storage.save()
 
     def help_create(self):
