@@ -3,7 +3,7 @@
 import models
 from models.city import City
 from sqlalchemy.orm import relationship
-from configs.environment_variables import HBNB_TYPE_STORAGE
+from configs.env_vars import HBNB_TYPE_STORAGE
 from models.base_model import BaseModel, Base, Column, String
 
 

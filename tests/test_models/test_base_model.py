@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """ """
-from configs.environment_variables import HBNB_TYPE_STORAGE
+from configs.env_vars import HBNB_TYPE_STORAGE
 from models.base_model import BaseModel
 from sqlalchemy import Column
 from unittest.mock import patch, MagicMock

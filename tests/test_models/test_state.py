@@ -4,7 +4,7 @@ from models import storage
 from models.model_registry import mapped_classes
 from unittest.mock import patch, MagicMock
 from sqlalchemy.orm import InstrumentedAttribute
-from configs.environment_variables import HBNB_TYPE_STORAGE
+from configs.env_vars import HBNB_TYPE_STORAGE
 from tests.test_models.test_base_model import test_basemodel, unittest
 
 

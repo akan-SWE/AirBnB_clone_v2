@@ -6,7 +6,7 @@ from models import storage
 from models.base_model import BaseModel
 from unittest.mock import patch, MagicMock
 from models.model_registry import mapped_classes
-from configs.environment_variables import HBNB_TYPE_STORAGE
+from configs.env_vars import HBNB_TYPE_STORAGE
 
 
 @unittest.skipIf(HBNB_TYPE_STORAGE != 'file', reason='Requires file storage')

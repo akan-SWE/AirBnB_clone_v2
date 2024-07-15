@@ -9,7 +9,7 @@ Note: This class is designed to work only with classes that are part of the
 database schema.
 """
 from models.model_registry import mapped_classes
-from models.base_model import BaseModel, Base
+from models.base_model import Base
 from sqlalchemy.orm import sessionmaker
 
 
@@ -37,20 +37,20 @@ class DBStorage:
     def __init__(self):
         """Initializes a new database engine."""
         from sqlalchemy.engine.url import URL
-        from configs import environment_variables
+        from configs import env_vars
         from sqlalchemy import create_engine
 
         mysqldb_info = {
             'drivername': 'mysql+mysqldb',
-            'username': environment_variables.HBNB_MYSQL_USER,
-            'password': environment_variables.HBNB_MYSQL_PWD,
-            'host': environment_variables.HBNB_MYSQL_HOST,
-            'database': environment_variables.HBNB_MYSQL_DB
+            'username': env_vars.HBNB_MYSQL_USER,
+            'password': env_vars.HBNB_MYSQL_PWD,
+            'host': env_vars.HBNB_MYSQL_HOST,
+            'database': env_vars.HBNB_MYSQL_DB
         }
         self.__engine = create_engine(str(URL.create(**mysqldb_info)),
                                       pool_pre_ping=True)
         # In test environment, delete all tables to start with fresh data
-        if environment_variables.HBNB_ENV == "test":
+        if env_vars.HBNB_ENV == "test":
             Base.metadata.reflect(bind=self.__engine)
             Base.metadata.drop_all(self.__engine)
 

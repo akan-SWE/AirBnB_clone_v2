@@ -9,7 +9,7 @@ import unittest
 from models import storage
 from unittest.mock import patch, MagicMock
 from models.engine.db_storage import DBStorage, Base
-from configs.environment_variables import HBNB_TYPE_STORAGE
+from configs.env_vars import HBNB_TYPE_STORAGE
 
 
 @unittest.skipIf(HBNB_TYPE_STORAGE != 'db', reason='Requires database storage')
@@ -148,13 +148,13 @@ class test_DBStorage(unittest.TestCase):
     def create_connection(cls):
         """Creates a new connection with the database"""
         import MySQLdb
-        from configs import environment_variables
+        from configs import env_vars
 
         conn = MySQLdb.connect(
-            host=environment_variables.HBNB_MYSQL_HOST,
-            user=environment_variables.HBNB_MYSQL_USER,
-            passwd=environment_variables.HBNB_MYSQL_PWD,
-            db=environment_variables.HBNB_MYSQL_DB,
+            host=env_vars.HBNB_MYSQL_HOST,
+            user=env_vars.HBNB_MYSQL_USER,
+            passwd=env_vars.HBNB_MYSQL_PWD,
+            db=env_vars.HBNB_MYSQL_DB,
         )
         return conn
 
