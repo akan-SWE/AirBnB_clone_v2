@@ -2,14 +2,8 @@
 """ Console Module """
 import cmd
 import sys
-from models.base_model import BaseModel
-from models.__init__ import storage
-from models.user import User
-from models.place import Place
-from models.state import State
-from models.city import City
-from models.amenity import Amenity
-from models.review import Review
+from models import storage
+from models.model_registry import mapped_classes
 
 
 class HBNBCommand(cmd.Cmd):
@@ -17,12 +11,6 @@ class HBNBCommand(cmd.Cmd):
 
     # determines prompt for interactive/non-interactive modes
     prompt = '(hbnb) ' if sys.__stdin__.isatty() else ''
-
-    classes = {
-               'BaseModel': BaseModel, 'User': User, 'Place': Place,
-               'State': State, 'City': City, 'Amenity': Amenity,
-               'Review': Review
-              }
     dot_cmds = ['all', 'count', 'show', 'destroy', 'update']
     types = {
              'number_rooms': int, 'number_bathrooms': int,
@@ -127,7 +115,7 @@ class HBNBCommand(cmd.Cmd):
 
         if not class_name:
             print("** class name missing **")
-        elif class_name not in HBNBCommand.classes:
+        elif class_name not in mapped_classes:
             print("** class doesn't exist **")
         else:  # validate parameters:
             from re import match
@@ -149,10 +137,10 @@ class HBNBCommand(cmd.Cmd):
                     kwargs[key] = value_as_type
 
             # create instance
-            instance = HBNBCommand.classes.get(class_name)()
-            print(instance.id)
-            instance.__dict__.update(kwargs)  # add intance attributes
-            storage.save()
+            obj = mapped_classes.get(class_name)()
+            print(obj.id)
+            obj.__dict__.update(kwargs)  # add intance attributes
+            obj.save()
 
     def help_create(self):
         """ Help information for the create method """
@@ -173,7 +161,7 @@ class HBNBCommand(cmd.Cmd):
             print("** class name missing **")
             return
 
-        if c_name not in HBNBCommand.classes:
+        if c_name not in mapped_classes:
             print("** class doesn't exist **")
             return
 
@@ -204,7 +192,7 @@ class HBNBCommand(cmd.Cmd):
             print("** class name missing **")
             return
 
-        if c_name not in HBNBCommand.classes:
+        if c_name not in mapped_classes:
             print("** class doesn't exist **")
             return
 
@@ -227,21 +215,12 @@ class HBNBCommand(cmd.Cmd):
 
     def do_all(self, args):
         """ Shows all objects, or all objects of a class"""
-        print_list = []
-
-        if args:
-            args = args.split(' ')[0]  # remove possible trailing args
-            if args not in HBNBCommand.classes:
-                print("** class doesn't exist **")
-                return
-            for k, v in storage._FileStorage__objects.items():
-                if k.split('.')[0] == args:
-                    print_list.append(str(v))
+        args = args.split(' ')[0]  # remove possible trailing args
+        if len(args) > 1 and args not in mapped_classes:
+            print("** class doesn't exist **")
         else:
-            for k, v in storage._FileStorage__objects.items():
-                print_list.append(str(v))
-
-        print(print_list)
+            objs = storage.all(mapped_classes.get(args)).values()
+            print('[' + ', '.join(str(obj) for obj in objs) + ']')
 
     def help_all(self):
         """ Help information for the all command """
@@ -271,7 +250,7 @@ class HBNBCommand(cmd.Cmd):
         else:  # class name not present
             print("** class name missing **")
             return
-        if c_name not in HBNBCommand.classes:  # class name invalid
+        if c_name not in mapped_classes:  # class name invalid
             print("** class doesn't exist **")
             return
 
