@@ -12,7 +12,7 @@ class FileStorage:
         """Returns a dictionary containing all object or objects
         of a specific class
         """
-        objs = FileStorage.__objects
+        objs = self.__objects
         if cls:
             objs = ({key: obj for key, obj in objs.items()
                      if isinstance(obj, cls)})
