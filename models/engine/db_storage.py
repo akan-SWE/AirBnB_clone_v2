@@ -10,7 +10,7 @@ database schema.
 """
 from models.model_registry import mapped_classes
 from models.base_model import Base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 
 class DBStorage:
@@ -67,17 +67,16 @@ class DBStorage:
             dict: A dictionary of all objects of the specified class or all
                 objects in the database.
         """
-        with self.Session() as session:
-            # use class passed or all classes if None is passed
-            classes_to_query = [cls] if cls else mapped_classes.values()
-            # Add objects of the classes
-            objs_dict = {}
-            for cls in classes_to_query:
-                objs = self.__session.query(cls).all()
-                if len(objs) > 0:
-                    objs_dict.update({f'{type(obj).__name__}.{obj.id}':
-                                      obj for obj in objs})
-            return objs_dict
+        # use class passed or all classes if None is passed
+        classes_to_query = [cls] if cls else mapped_classes.values()
+        # Add objects of the classes
+        objs_dict = {}
+        for cls in classes_to_query:
+            objs = self.__session.query(cls).all()
+            if len(objs) > 0:
+                objs_dict.update({f'{type(obj).__name__}.{obj.id}':
+                                 obj for obj in objs})
+        return objs_dict
 
     def new(self, obj):
         """
@@ -93,8 +92,7 @@ class DBStorage:
         Returns:
             None
         """
-        with self.Session() as session:
-            self.__session.add(obj)
+        self.__session.add(obj)
 
     def save(self):
         """
@@ -106,8 +104,7 @@ class DBStorage:
         Returns:
             None
         """
-        with self.Session() as session:
-            self.__session.commit()
+        self.__session.commit()
 
     def delete(self, obj=None):
         """
@@ -120,9 +117,8 @@ class DBStorage:
         Returns:
             None
         """
-        with self.Session() as session:
-            if obj:
-                self.__session.delete(obj)
+        if obj:
+            self.__session.delete(obj)
 
     def reload(self):
         """
@@ -136,6 +132,13 @@ class DBStorage:
         Returns:
             None
         """
+        from atexit import register
+
         Base.metadata.create_all(bind=self.__engine)
-        self.Session = sessionmaker(bind=self.__engine, expire_on_commit=False)
-        self.__session = self.Session()
+
+        factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        self.__session = scoped_session(factory)()
+        register(self.close_session)
+
+    def close_session(self):
+        self.__session.close()
