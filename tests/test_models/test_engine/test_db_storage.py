@@ -106,9 +106,10 @@ class test_DBStorage(unittest.TestCase):
         storage.delete(None)
         mock_session.delete.assert_not_called()
 
+    @patch('models.engine.db_storage.scoped_session')
     @patch('models.engine.db_storage.sessionmaker')
     @patch('models.engine.db_storage.Base.metadata.create_all')
-    def test_reload(self, mock_create_all, mock_session):
+    def test_reload(self, mock_create_all, mock_session, mock_scoped_session):
         """
         Test that reload properly creates new session and tables in the
         database
@@ -116,6 +117,7 @@ class test_DBStorage(unittest.TestCase):
         storage.reload()
         mock_create_all.assert_called_once()
         mock_session.assert_called_once()
+        mock_scoped_session.assert_called_once()
 
     def test_integrations(self):
         """Testing the interactions between each methods of the class"""
