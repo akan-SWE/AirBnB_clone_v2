@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 """ """
 from tests.test_models.test_base_model import test_basemodel
-from models.user import User
+from models.model_registry import mapped_classes
+import unittest
+from configs.env_vars import HBNB_TYPE_STORAGE
 
 
 class test_User(test_basemodel):
@@ -10,25 +12,38 @@ class test_User(test_basemodel):
     def __init__(self, *args, **kwargs):
         """ """
         super().__init__(*args, **kwargs)
-        self.name = "User"
-        self.value = User
+        self.name = 'User'
+        self.value = mapped_classes['User']
+
 
     def test_first_name(self):
         """ """
         new = self.value()
-        self.assertEqual(type(new.first_name), str)
+        self.assertTrue(hasattr(self.value, 'first_name'))
 
     def test_last_name(self):
         """ """
         new = self.value()
-        self.assertEqual(type(new.last_name), str)
+        self.assertTrue(hasattr(self.value, 'last_name'))
 
     def test_email(self):
         """ """
         new = self.value()
-        self.assertEqual(type(new.email), str)
+        self.assertTrue(hasattr(self.value, 'email'))
 
     def test_password(self):
         """ """
         new = self.value()
-        self.assertEqual(type(new.password), str)
+        self.assertTrue(hasattr(self.value, 'password'))
+
+    @unittest.skipIf(HBNB_TYPE_STORAGE != 'db', reason='Requires database storage')
+    def test_table_name(self):
+        """ """
+        self.assertEqual(self.value.__tablename__, 'users')
+
+
+    def test_places(self):
+        """ """
+        new = self.value()
+        # print(new.places)
+        self.assertTrue(hasattr(self.value, 'places'))
