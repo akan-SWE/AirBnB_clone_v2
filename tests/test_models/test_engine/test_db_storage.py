@@ -163,4 +163,5 @@ class test_DBStorage(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         """Close the database connection"""
+        storage.reload()
         cls.conn.close()

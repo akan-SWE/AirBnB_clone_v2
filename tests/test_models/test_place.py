@@ -1,10 +1,9 @@
-#!/usr/bin/python3
-""" """
-from tests.test_models.test_base_model import test_basemodel
-from models.place import Place
+#!/usr/bin/env python3
+"""Test for Place class"""
 import unittest
 from configs.env_vars import HBNB_TYPE_STORAGE
 from models.model_registry import mapped_classes
+from tests.test_models.test_base_model import test_basemodel
 
 
 class test_Place(test_basemodel):
@@ -71,8 +70,7 @@ class test_Place(test_basemodel):
         new = self.value()
         self.assertTrue(hasattr(self.value, 'amenity_ids'))
 
-
-    @unittest.skipIf(HBNB_TYPE_STORAGE != 'db', reason='Requires database storage')
+    @unittest.skipIf(HBNB_TYPE_STORAGE != 'db', reason='Requires database')
     def test_table_name(self):
         """ """
         self.assertEqual(self.value.__tablename__, 'places')
@@ -80,10 +78,56 @@ class test_Place(test_basemodel):
     def test_user_attr(self):
         """ """
         new = self.value()
-        # print(new.places)
         self.assertTrue(hasattr(self.value, 'user'))
 
-        # user = User()
+    def test_reviews_attr(self):
+        """ """
+        self.assertTrue(hasattr(self.value, 'reviews'))
 
+    @unittest.skipIf(HBNB_TYPE_STORAGE != 'db', reason='Requires database')
+    def test_review_integrations_db(self):
+        """Testing the interactions between each methods of the class"""
 
-        # print(User)
+        state = mapped_classes['State']()
+        state.name = 'Arizona'
+        state.save()
+
+        city = mapped_classes.get('City')()
+        city.name = 'Phoenix'
+        city.state_id = state.id
+        city.save()
+
+        user = mapped_classes.get('User')()
+        user.first_name = 'John'
+        user.last_name = 'Doe'
+        user.password = '12345'
+        user.email = 'johndoe@example.com'
+        user.save()
+
+        place = self.value()
+        place.city_id = city.id
+        place.user_id = user.id
+        place.name = 'My home'
+        place.latitude = 0.0
+        place.longitude = 0.0
+        place.description = 'Lorem ipsum dolor sit amet.'
+        place.save()
+
+        review = mapped_classes.get('Review')()
+        review.text = 'Feels like home'
+        review.place_id = place.id
+        review.user_id = user.id
+        review.save()
+
+        self.assertEqual(place.reviews, [review])
+
+    def test_reviews_integrations_file(self):
+        """ """
+        place = self.value()
+        place.save()
+        review = mapped_classes.get('Review')()
+
+        review.place_id = place.id
+        review.save()
+
+        self.assertEqual(place.reviews, [review])

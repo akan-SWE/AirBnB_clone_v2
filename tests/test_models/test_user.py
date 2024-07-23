@@ -15,7 +15,6 @@ class test_User(test_basemodel):
         self.name = 'User'
         self.value = mapped_classes['User']
 
-
     def test_first_name(self):
         """ """
         new = self.value()
@@ -36,14 +35,13 @@ class test_User(test_basemodel):
         new = self.value()
         self.assertTrue(hasattr(self.value, 'password'))
 
-    @unittest.skipIf(HBNB_TYPE_STORAGE != 'db', reason='Requires database storage')
+    def test_places_class_attrbute(self):
+        self.assertTrue(hasattr(self.value, 'places'))
+
+    def test_reviews_attr(self):
+        self.assertTrue(hasattr(self.value, 'reviews'))
+
+    @unittest.skipIf(HBNB_TYPE_STORAGE != 'db', reason='Requires database')
     def test_table_name(self):
         """ """
         self.assertEqual(self.value.__tablename__, 'users')
-
-
-    def test_places(self):
-        """ """
-        new = self.value()
-        # print(new.places)
-        self.assertTrue(hasattr(self.value, 'places'))
