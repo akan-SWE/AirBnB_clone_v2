@@ -14,5 +14,6 @@ from models.amenity import Amenity
 from models.review import Review
 
 mapped_classes = {
-    'State': State, 'City': City, 'User': User, 'Place': Place
+    'State': State, 'City': City, 'Review': Review,
+    'Amenity': Amenity, 'User': User, 'Place': Place
 }
