@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 """This module defines a class User"""
+from configs.env_vars import HBNB_TYPE_STORAGE
 from models.base_model import BaseModel, Base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String, ForeignKey, Integer, Float
@@ -32,3 +33,15 @@ class User(BaseModel, Base):
     last_name = Column(String(128), nullable=True)
     places = relationship('Place', cascade='all, delete', backref='user')
     reviews = relationship('Review', cascade='all, delete', backref='user')
+
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize an User instance.
+
+        Handles differences in initialization based on the storage type.
+        """
+        if HBNB_TYPE_STORAGE == 'db':
+            BaseModel.__init__(self)
+            Base.__init__(self, *args, **kwargs)
+        else:
+            BaseModel.__init__(self, *args, **kwargs)
