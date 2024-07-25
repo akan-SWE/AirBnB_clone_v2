@@ -5,7 +5,7 @@ from models.base_model import BaseModel
 from sqlalchemy import Column
 from unittest.mock import patch, MagicMock
 import unittest
-import datetime
+from datetime import datetime
 from uuid import UUID
 from models import storage
 import json
@@ -38,6 +38,7 @@ class test_basemodel(unittest.TestCase):
         i = self.value()
         self.assertIsInstance(i, self.value)
 
+    @unittest.skipIf(HBNB_TYPE_STORAGE == 'db', reason='Requires file storage')
     def test_kwargs(self):
         """ """
         i = self.value()
@@ -83,9 +84,10 @@ class test_basemodel(unittest.TestCase):
         with self.assertRaises(TypeError):
             new = self.value(**n)
 
+    @unittest.skipIf(HBNB_TYPE_STORAGE == 'db', reason='Requires file storage')
     def test_kwargs_one(self):
         """ """
-        n = {'Name': 'test'}
+        n = {'Name': 'Test'}
         new = self.value(**n)
 
     @patch('models.storage.delete')
@@ -102,12 +104,12 @@ class test_basemodel(unittest.TestCase):
     def test_created_at(self):
         """ """
         new = self.value()
-        self.assertEqual(type(new.created_at), datetime.datetime)
+        self.assertEqual(type(new.created_at), datetime)
 
     def test_updated_at(self):
         """ """
         new = self.value()
-        self.assertEqual(type(new.updated_at), datetime.datetime)
+        self.assertEqual(type(new.updated_at), datetime)
         n = new.to_dict()
         new = BaseModel(**n)
         self.assertFalse(new.created_at == new.updated_at)
