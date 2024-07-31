@@ -29,7 +29,7 @@ class test_basemodel(unittest.TestCase):
 
     def tearDown(self):
         try:
-            os.remove('file.json')
+            os.remove('test_file.json')
         except FileNotFoundError:
             pass
 
