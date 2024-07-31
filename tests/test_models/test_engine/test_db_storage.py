@@ -119,6 +119,12 @@ class test_DBStorage(unittest.TestCase):
         mock_session.assert_called_once()
         mock_scoped_session.assert_called_once()
 
+    @patch.object(storage, '_DBStorage__session')
+    def test_close(self, mock_session):
+        self.assertTrue(hasattr(storage, 'close'))
+        storage.close()
+        mock_session.remove.assert_called_once()
+
     def test_integrations(self):
         """Testing the interactions between each methods of the class"""
         from models.model_registry import mapped_classes

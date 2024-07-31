@@ -134,14 +134,12 @@ class DBStorage:
         Returns:
             None
         """
-        from atexit import register
-
         Base.metadata.create_all(bind=self.__engine)
 
         sess_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        # create a scoped session object
         self.__session = scoped_session(sess_factory)
-        register(self.close_session)
 
-    def close_session(self):
+    def close(self):
         """Ensure the session is closed"""
-        self.__session.close()
+        self.__session.remove()

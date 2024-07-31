@@ -8,6 +8,8 @@ from unittest.mock import patch, MagicMock
 from models.model_registry import mapped_classes
 from configs.env_vars import HBNB_TYPE_STORAGE
 
+storage._FileStorage__file_path = 'test_file.json'
+
 
 @unittest.skipIf(HBNB_TYPE_STORAGE != 'file', reason='Requires file storage')
 class test_fileStorage(unittest.TestCase):
@@ -25,7 +27,7 @@ class test_fileStorage(unittest.TestCase):
     def tearDown(self):
         """ Remove storage file at end of tests """
         try:
-            os.remove('file.json')
+            os.remove('test_file.json')
         except FileNotFoundError:
             pass
 
@@ -52,7 +54,7 @@ class test_fileStorage(unittest.TestCase):
     def test_base_model_instantiation(self):
         """ File is not created on BaseModel save """
         new = self.value()
-        self.assertFalse(os.path.exists('file.json'))
+        self.assertFalse(os.path.exists('test_file.json'))
 
     def test_empty(self):
         """ Data is saved to file """
@@ -61,14 +63,14 @@ class test_fileStorage(unittest.TestCase):
         thing = new.to_dict()
         new.save()
         new2 = self.value(**thing)
-        self.assertNotEqual(os.path.getsize('file.json'), 0)
+        self.assertNotEqual(os.path.getsize('test_file.json'), 0)
 
     def test_save(self):
         """ FileStorage save method """
         new = self.value()
         new.save()
         storage.save()
-        self.assertTrue(os.path.exists('file.json'))
+        self.assertTrue(os.path.exists('test_file.json'))
 
     def test_reload(self):
         """ Storage file is successfully loaded to __objects """
@@ -81,7 +83,7 @@ class test_fileStorage(unittest.TestCase):
 
     def test_reload_empty(self):
         """ Load from an empty file """
-        with open('file.json', 'w') as f:
+        with open('test_file.json', 'w') as f:
             pass
         with self.assertRaises(ValueError):
             storage.reload()
@@ -95,7 +97,7 @@ class test_fileStorage(unittest.TestCase):
         new = self.value()
         new.save()
         new.save()
-        self.assertTrue(os.path.exists('file.json'))
+        self.assertTrue(os.path.exists('test_file.json'))
 
     def test_type_path(self):
         """ Confirm __file_path is string """
@@ -154,6 +156,12 @@ class test_fileStorage(unittest.TestCase):
         # check if the object returned is of type BaseModel
         for obj in storage.all(self.value).values():
             self.assertIsInstance(obj, self.value)
+
+    @patch.object(storage, 'reload')
+    def test_close(self, mock_reload):
+        self.assertTrue(hasattr(storage, 'close'))
+        storage.close()
+        mock_reload.assert_called_once()
 
     def test_state_city_integration(self):
         """Test that relationship between State and City is established"""
